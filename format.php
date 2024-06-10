@@ -25,7 +25,14 @@
 defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->libdir . '/xmlize.php');
-
+if (!class_exists('qformat_default')) {
+    // This is ugly, but this class is also (ab)used by mod/lesson, which defines
+    // a different base class in mod/lesson/format.php. Thefore, we can only
+    // include the proper base class conditionally like this. (We have to include
+    // the base class like this, otherwise it breaks third-party question types.)
+    // This may be reviewd, and a better fix found one day.
+    require_once($CFG->dirroot . '/question/format.php');
+}
 class qformat_canvas extends qformat_based_on_xml {
     public function provide_import() {
         return true;
@@ -52,7 +59,7 @@ class qformat_canvas extends qformat_based_on_xml {
      */
     public function readquestions($lines) {
         question_bank::get_qtype('multianswer'); // Ensure the multianswer code is loaded.
-        $text = implode($lines, ' ');
+        $text = implode(' ', $lines);
         unset($lines);
         // This converts xml to big nasty data structure,
         // the 0 means keep white space as it is.
